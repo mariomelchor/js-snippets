@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Map</title>
+  <style>
+    .section-map .google-map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <section class="section-map">
+    <div id="map" class="google-map"></div>
+  </section><!-- /.section-map -->
+
+  <script>
+    var map;
+    var service;
+    var infowindow;
+
+    function initMap() {
+
+      // Center Map
+      var mapCenter = new google.maps.LatLng( 33.6817765, -117.8781561,17 );
+
+      // Add google map to the DOM
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: mapCenter,
+        zoom: 12
+      });
+
+      // Search for a location
+      var request = {
+        query: 'Dhali Web Design',
+        fields: ['photos', 'formatted_address', 'name', 'rating', 'opening_hours', 'geometry', 'id', 'place_id']
+      };
+
+      // State custom styles
+      var styles = [{
+          "featureType": "landscape.natural",
+          "elementType": "geometry.fill",
+          "stylers": [
+              {
+                  "visibility": "on"
+              },
+              {
+                  "color": "#e0efef"
+              }
+          ]
+      },
+      {
+          "featureType": "poi",
+          "elementType": "geometry.fill",
+          "stylers": [
+              {
+                  "visibility": "on"
+              },
+              {
+                  "hue": "#1900ff"
+              },
+              {
+                  "color": "#c0e8e8"
+              }
+          ]
+      },
+      {
+          "featureType": "road",
+          "elementType": "geometry",
+          "stylers": [
+              {
+                  "lightness": 100
+              },
+              {
+                  "visibility": "simplified"
+              }
+          ]
+      },
+      {
+          "featureType": "road",
+          "elementType": "labels",
+          "stylers": [
+              {
+                  "visibility": "on"
+              }
+          ]
+      },
+      {
+          "featureType": "transit.line",
+          "elementType": "geometry",
+          "stylers": [
+              {
+                  "visibility": "on"
+              },
+              {
+                  "lightness": 700
+              }
+          ]
+      },
+      {
+          "featureType": "water",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "color": "#7dcdcd"
+              }
+          ]
+      },
+      {
+          "featureType": "water",
+          "elementType": "geometry.fill",
+          "stylers": [
+              {
+                  "color": "#b2e6f2"
+              }
+          ]
+      }
+      ];
+
+      // Set custom styles on map
+      map.setOptions({styles: styles});
+
+      infowindow = new google.maps.InfoWindow();
+      service = new google.maps.places.PlacesService(map);
+      service.findPlaceFromQuery(request, callback);
+
+    }
+
+    // function callback to loop through results
+    function callback(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          var place = results[i];
+          createMarker(results[i]);
+        }
+      }
+    }
+
+    // Adds marker to map
+    function createMarker(place) {
+      var placeLoc = place.geometry.location;
+      var marker = new google.maps.Marker({
+        map: map,
+        position: place.geometry.location
+      });
+
+      // Set content for window
+      var placeLink = 'https://www.google.com/maps/search/?api=1&query=' + place.name + '&query_place_id=' + place.place_id;
+      var windowContent = place.name + '<br>' + place.formatted_address + '<br>' + '<a href="'+ placeLink +'" target="_blank">Get Directions &rarr;</a>';
+
+      // Open infowindow by default
+      infowindow.setContent( windowContent );
+      infowindow.open(map, marker);
+
+      // Enable infowindow when marker is clicked
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent( windowContent );
+        infowindow.open(map, this);
+      });
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY_HERE&libraries=places&callback=initMap"></script>
+
+</body>
+</html>
